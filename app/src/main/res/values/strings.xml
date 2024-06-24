@@ -24,6 +24,19 @@
     <string name="usage_permission_title">Usage Access</string>
     <string name="usage_permission_description">Usage permission is needed to organize screenshots into app groups.</string>
 
+    // On Boarding Screens
+    <string name="onboarding_theproblem_title1">Have </string>
+    <string name="onboarding_theproblem_title2">too many screenshots ?</string>
+    <string name="onboarding_theproblem_description">We made this app to search them all and keep them organized</string>
+
+    <string name="onboarding_search_title1">Search</string>
+    <string name="onboarding_search_title2">using text in screenshot</string>
+    <string name="onboarding_search_description">type a word in search bar and find all screenshots which contain that word</string>
+
+    <string name="onboarding_organize_title1">Sort</string>
+    <string name="onboarding_organize_title2">by app</string>
+    <string name="onboarding_organize_description">every app has a separate folder into which all of its screenshots go</string>
+
     <string name="overlay_permission_text">Grant Overlay permissions</string>
 
     <string name="snackbar_disable">Screenshot feature disabled</string>

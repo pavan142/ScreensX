@@ -21,7 +21,15 @@
     <color name="permission_granted_background">#00c8d7</color>
 <!--    <color name="permission_granted_shadow_dark">#00a8b7</color>-->
     <color name="base_color">#00a8b7</color>
+    <color name="base_color_lighter">#3DC0CC</color>
+    <color name="base_color_lightest">#A5B6B7</color>
 
+    <!--    Onboarding Screens-->
+    <color name="pink_bg_color">#f9a9af</color>
+    <color name="green_bg_color">#a6dd8f</color>
+    <color name="blue_bg_color">#aae3e0</color>
+<!--    <color name="bg_blob">#f5ebdd</color>-->
+    <color name="bg_blob">#f5ebdd</color>
     <color name="permission_awaiting_background">#00c8d7</color>
     <color name="permission_awaiting_shadow_dark">#9900c8d7</color>
 

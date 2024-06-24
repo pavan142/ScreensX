@@ -9,5 +9,7 @@
     <include
         layout="@layout/homepage_permissions"/>
     <include
+        layout="@layout/homepage_onboarding"/>
+    <include
         layout="@layout/homepage_loading_screen"/>
 </RelativeLayout>

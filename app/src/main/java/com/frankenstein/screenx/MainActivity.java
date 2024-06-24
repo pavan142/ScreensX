@@ -24,6 +24,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import android.content.Intent;
 
@@ -32,6 +34,7 @@ import com.frankenstein.screenx.helper.PermissionHelper;
 import com.frankenstein.screenx.models.AppGroup;
 import com.frankenstein.screenx.models.Screenshot;
 import com.frankenstein.screenx.ui.adapters.HomePageAdapter;
+import com.frankenstein.screenx.ui.adapters.OnboardingPageAdapter;
 import com.frankenstein.screenx.ui.adapters.PermissionPageAdapter;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -52,8 +55,16 @@ public class MainActivity extends AppCompatActivity {
     private SwipeRefreshLayout _pullToRefresh;
     private View _mProgressBar;
     private View _mPermissionsDisplay;
+    private View _mOnboardingDisplay;
     private PermissionPageAdapter _mPermissionPageAdapter;
+    private OnboardingPageAdapter _mOnboardingPageAdapter;
     private AlertDialog.Builder _mAlertBuilder;
+    private Map<String, View> _mDisplayMap = new HashMap<>();
+
+    private static final String PERMISSION_DISPLAY="PERMISSION_DISPLAY";
+    private static final String ONBOARDING_DISPLAY="ONBOARDING_DISPLAY";
+    private static final String PROGRESS_DISPLAY="PROGRESS_DISPLAY";
+    private static final String HOMEPAGE_DISPLAY="HOMEPAGE_DISPLAY";
 
     private boolean _mPermissionsGranted = false;
     private Handler _mHandler;
@@ -72,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private HomePageState _mPrevState = HomePageState.REQUEST_PERMISSIONS;
     private enum HomePageState {
         REQUEST_PERMISSIONS,
+        ONBOARDING_SCREEN,
         LOADING_PROGRESS_BAR,
         NO_CONTENT_SCREEN,
         DISPLAY_CONTENT,
@@ -101,6 +113,12 @@ public class MainActivity extends AppCompatActivity {
         _mProgressBar = findViewById(R.id.progress_bar);
 
         _mPermissionsDisplay = findViewById(R.id.permissions_display);
+        _mOnboardingDisplay = findViewById(R.id.onboarding_display);
+
+        _mDisplayMap.put(PERMISSION_DISPLAY, _mPermissionsDisplay);
+        _mDisplayMap.put(ONBOARDING_DISPLAY, _mOnboardingDisplay);
+        _mDisplayMap.put(PROGRESS_DISPLAY, _mProgressBar);
+        _mDisplayMap.put(HOMEPAGE_DISPLAY, _mHomePageContentLayout);
 
         _mAlertBuilder = new AlertDialog.Builder(this);
         setupSearchBar();
@@ -131,6 +149,9 @@ public class MainActivity extends AppCompatActivity {
             case REQUEST_PERMISSIONS:
                 showRequestPermissionsScreen();
                 break;
+            case ONBOARDING_SCREEN:
+                showOnboardingScreen();
+                break;
             case LOADING_PROGRESS_BAR:
                 showProgressBar();
                 break;
@@ -147,21 +168,30 @@ public class MainActivity extends AppCompatActivity {
         _mPrevState = newState;
     }
 
+    private void bringDisplayIntoView(String displayName) {
+        View display = _mDisplayMap.get(displayName);
+        for (View v: _mDisplayMap.values()) {
+            v.setVisibility(View.GONE);
+        }
+        display.setVisibility(View.VISIBLE);
+    }
+
     private void showRequestPermissionsScreen() {
         _mPermissionsGranted = false;
-        _mPermissionsDisplay.setVisibility(View.VISIBLE);
-        _mProgressBar.setVisibility(View.GONE);
-        _mHomePageContentEmpty.setVisibility(View.GONE);
+        bringDisplayIntoView(PERMISSION_DISPLAY);
         checkPermissions();
+    }
+
+    private void showOnboardingScreen() {
+        createOnboardingAdapter();
+        bringDisplayIntoView(ONBOARDING_DISPLAY);
     }
 
     private void showProgressBar() {
         _mPermissionsGranted = true;
+        bringDisplayIntoView(PROGRESS_DISPLAY);
         _mHomePageContentLayout.setAlpha(0);
         _mHomePageContentLayout.setVisibility(View.VISIBLE);
-        _mPermissionsDisplay.setVisibility(View.GONE);
-        _mProgressBar.setVisibility(View.VISIBLE);
-
         _mLogger.log("Initializing Screenshots");
         createIfNot(CUSTOM_SCREENSHOT_DIR);
         refresh();
@@ -312,13 +342,24 @@ public class MainActivity extends AppCompatActivity {
         new TabLayoutMediator(permissionTabLayout, permissionViewPager, (tab, pos) -> {}).attach();
     }
 
+    private void createOnboardingAdapter() {
+        if (_mOnboardingPageAdapter != null)
+            return;
+        ViewPager2 onboardingViewPager = findViewById(R.id.onboarding_view_pager);
+        _mOnboardingPageAdapter = new OnboardingPageAdapter(this, this);
+        onboardingViewPager.setAdapter(_mOnboardingPageAdapter);
+        TabLayout permissionTabLayout = findViewById(R.id.onboarding_tab_layout);
+        new TabLayoutMediator(permissionTabLayout, onboardingViewPager, (tab, pos) -> {}).attach();
+    }
+
     public void checkPermissions() {
         boolean hasStoragePermission = PermissionHelper.hasStoragePermission(this);
         boolean hasUsagePermission = PermissionHelper.hasUsagePermission(this);
 
         if (hasStoragePermission && hasUsagePermission) {
             _mLogger.log("Has all the permissions");
-            _mState.setValue(HomePageState.LOADING_PROGRESS_BAR);
+            _mState.setValue(HomePageState.ONBOARDING_SCREEN);
+//            _mState.setValue(HomePageState.LOADING_PROGRESS_BAR);
             return;
         }
 
